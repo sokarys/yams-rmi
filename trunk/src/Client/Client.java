@@ -447,7 +447,6 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                 }
                 break;
         }
-        System.out.print("Votre sélection : ");
     }
 
     public void setPartie(Partie partie) {
