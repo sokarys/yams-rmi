@@ -17,5 +17,6 @@ public interface IPartie extends Remote{
     public void dellClient(IClient c) throws RemoteException;
     public void lancerPartie(IClient c) throws RemoteException;
     public void afficherScore() throws RemoteException;
+    public Partie partie()throws RemoteException;
     
 }

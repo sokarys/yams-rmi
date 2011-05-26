@@ -1,13 +1,20 @@
+
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+* To change this template, choose Tools | Templates
+* and open the template in the editor.
  */
 package Interface;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 import Client.Client;
 import Client.IClient;
 import Client.Tchat;
+
+//~--- JDK imports ------------------------------------------------------------
+
 import java.rmi.RemoteException;
+
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,22 +23,26 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class Interface implements Runnable{
-    private boolean quitter;
+public class Interface implements Runnable {
     private IClient client;
-    private Thread thread;
-    private Tchat tchat;
-    
-    public Interface(){
+    private boolean quitter;
+    private Tchat   tchat;
+    private Thread  thread;
+
+    public Interface() throws RemoteException {
         Scanner sc = new Scanner(System.in);
+
         System.out.println("Login");
+
         String name = sc.nextLine().replace("\n", "");
+
         System.out.println("Mot de passe : not implemented Eyt");
+
         String mdp = sc.nextLine().replace("\n", "");
-        this.client = new Client(name,mdp);
+
+        this.client = new Client(name, mdp);
     }
-    
-    
+
     private void afficherMenu() {
         System.out.println("1 - se Connecter");
         System.out.println("2 - Se Deconnecter");
@@ -50,12 +61,12 @@ public class Interface implements Runnable{
 
     @Override
     public void run() {
-        while(!quitter){
+        while (!quitter) {
             try {
-                if(!client.getClient().enPartie()){
+                if (!client.getClient().enPartie()) {
                     afficherMenu();
                     choix();
-                }else{
+                } else {
                     System.out.println("En partie");
                     choix();
                 }
@@ -67,50 +78,70 @@ public class Interface implements Runnable{
 
     private void choix() {
         try {
-            Scanner sc = new Scanner(System.in);
-            int choix = Integer.valueOf(sc.nextLine().replace("\n", ""));
-            int nb;
+            Scanner sc    = new Scanner(System.in);
+            int     choix = Integer.valueOf(sc.nextLine().replace("\n", ""));
+            int     nb;
+
             System.out.println(client.getClient().getEtatJoueur());
-            switch(choix){
-                case 1 :
-                    client = client.getClient().seConnecter();
-                    tchat = new Tchat("Tchat", client);
-                    tchat.setClient(client);
-                    client.getClient().setTchat(tchat);
-                    break;
-                case 2 :
-                    client.getClient().seDeconnecter();
-                    break;
-                case 0 :
-                    quitter = true;
-                    break;
-                case 3 :
-                    System.out.print("Nom partie : ");
-                    String nom = sc.nextLine().replace("\n", "");
-                    System.out.print("Nb Joueur");
-                    nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
-                    client.getClient().creerPartie(nom, nb);
-                    break;
-                case 4 : 
-                    System.out.println("Num Partie");
-                    nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
-                    client.getClient().rejoindrepartie(nb);
-                    break;
-                case 5 :                    
-                    System.out.println(client.getClient().getListePartie());
-                    break;
-                case 6 :
-                    client.getClient().lancerPartie();
-                    break;
-                case 7 :
-                    System.out.print("Message : ");
-                    String message = sc.nextLine().replace("\n", "");
-                    client.getClient().envoieMessage(message);
-                    break;
+
+            switch (choix) {
+            case 1 :
+                //client = client.getClient().seConnecter();
+    //            tchat  = new Tchat("Tchat", client);
+  //              tchat.setClient(client);
+//                client.getClient().setTchat(tchat);
+
+                break;
+
+            case 2 :
+                client.getClient().seDeconnecter();
+
+                break;
+
+            case 0 :
+                quitter = true;
+
+                break;
+
+            case 3 :
+                System.out.print("Nom partie : ");
+
+                String nom = sc.nextLine().replace("\n", "");
+
+                System.out.print("Nb Joueur");
+                nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
+                client.getClient().creerPartie(nom, nb);
+
+                break;
+
+            case 4 :
+                System.out.println("Num Partie");
+                nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
+                client.getClient().rejoindrepartie(nb);
+
+                break;
+
+            case 5 :
+                System.out.println(client.getClient().getListePartie());
+
+                break;
+
+            case 6 :
+                client.getClient().lancerPartie();
+
+                break;
+
+            case 7 :
+                System.out.print("Message : ");
+
+                String message = sc.nextLine().replace("\n", "");
+
+                client.getClient().envoieMessage(message);
+
+                break;
             }
         } catch (RemoteException ex) {
             Logger.getLogger(Interface.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
 }
