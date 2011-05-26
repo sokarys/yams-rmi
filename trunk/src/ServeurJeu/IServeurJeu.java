@@ -20,7 +20,7 @@ import java.util.ArrayList;
  */
 public interface IServeurJeu extends Remote{
     //Client-Serveur
-    public IClient seConnecter(IClient c) throws RemoteException;
+    public void seConnecter(IClient c) throws RemoteException;
     public void seDeconnecter(IClient c) throws RemoteException;    
     public void creerClient(String login, String password) throws RemoteException;
     
@@ -33,7 +33,7 @@ public interface IServeurJeu extends Remote{
     public void dellPartie(IPartie p) throws RemoteException;
     public Main jouer(IPartie p, IClient c) throws RemoteException;
     
-    public ArrayList<IPartie> getListepartie() throws RemoteException;
+    public ArrayList<Partie> getListepartie() throws RemoteException;
     
     
     //Client-Chat
@@ -42,5 +42,7 @@ public interface IServeurJeu extends Remote{
     
     //Fonction pour jouer
     public void envoyerMainPartie(Regles.TYPESCORE type, Main m,IPartie p, IClient c)  throws RemoteException;
+    
+    //public ServeurJeu getServeurJeu()
 
 }

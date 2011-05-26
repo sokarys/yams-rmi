@@ -4,7 +4,8 @@
  */
 package yamsv2;
 
-import Interface.Interface;
+import Client.Client;
+import java.rmi.RemoteException;
 
 
 /**
@@ -12,8 +13,9 @@ import Interface.Interface;
  * @author root
  */
 public class YAMSCLIENT {
-    public static void main(String[] args) {
-        Interface i = new Interface();
-        i.lancer();
+    public static void main(String[] args) throws RemoteException {
+        Client c = new Client("","");
+        Thread t = new Thread(c);
+        t.start();
     }
 }

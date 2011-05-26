@@ -19,16 +19,22 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author root
  */
+@XmlRootElement(name = "ServeurJeu")
 public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runnable{
-    private final Thread thread;
-    private ArrayList<IClient> listeClient;
-    private ArrayList<IPartie> listPartie;
+    private transient final Thread thread;
+    private transient ArrayList<IClient> listeClient;
+    private transient ArrayList<IPartie> listPartie;
 
+    public ServeurJeu() throws RemoteException{
+        thread = new Thread(this);
+    }
+    
     public ServeurJeu(int port) throws RemoteException, AlreadyBoundException{
         super(port);
         initServeurJeu();
@@ -46,19 +52,18 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
 
     
     @Override
-    public IClient seConnecter(IClient c) throws RemoteException {
+    public void seConnecter(IClient c) throws RemoteException {
         //USE SERVER DATA
         listeClient.add(c);
         c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
         c.setListePartie(listPartie);
-        return c;
     }
 
     @Override
     public void seDeconnecter(IClient c) throws RemoteException {
-        if(!c.getClient().enPartie()){
+        //if(!c.getClient().enPartie()){
             listeClient.remove(c);
-        }
+        //}
     }
 
     @Override
@@ -136,8 +141,12 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
     }
 
     @Override
-    public ArrayList<IPartie> getListepartie() throws RemoteException {
-        return listPartie;
+    public ArrayList<Partie> getListepartie() throws RemoteException {
+        ArrayList<Partie> l = new ArrayList<Partie>();
+        for(IPartie p : listPartie){
+            l.add(p.partie());
+        }
+        return l;
     }
 
     @Override
