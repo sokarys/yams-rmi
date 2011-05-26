@@ -13,6 +13,26 @@ import java.io.Serializable;
 public class De implements Serializable{
     private Integer face;
     
-    public void lancerLeDee(){};
+    public void lancerLeDe(){
+        face = (int) (Math.random()*6)+1;
+    }
+
+    public Integer getFace(){
+        return this.face;
+    }
+
+
+    public De() {
+        lancerLeDe();
+    }
+
+    public void setFace(Integer face){
+        this.face = face;
+    }
+
+    @Override
+    public String toString(){
+        return face.toString();
+    }
     
 }

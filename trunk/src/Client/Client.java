@@ -238,13 +238,11 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     @Override
     public void run() {
        while (!quitter) {
-                if (!this.enPartie()) {
-                    afficherMenu();
-                    choix();
-                }else if(this.enPartie() && !this.enJeu()){
-                    afficherMenu();
-                    choix();
-                }
+            try {
+                selectionMenu();
+            } catch (RemoteException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
@@ -321,15 +319,135 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         }
     }
      
-    private void afficherMenu() {
-        System.out.println("1 - se Connecter");
-        System.out.println("2 - Se Deconnecter");
-        System.out.println("3 - creer Partie");
-        System.out.println("4 - rejoindre Partie");
-        System.out.println("5 - liste des parties");
-        System.out.println("6 - lancer partie");
-        System.out.println("7 - Envoyer un message");
-        System.out.println("0 - Quitter");
+    public void selectionMenu() throws RemoteException {
+       Scanner sc = new Scanner(System.in);
+       Integer selection;
+       switch(this.etatClient){
+            case DECONNECTE :                
+                System.out.println("┌------------------------------------------------------------------------------------------------------┐");
+                System.out.println("│ 1:Se connecter | 2:Créer un compte | 3:Quitter                                                       │");
+                System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                System.out.print("Votre sélection : ");
+                selection = 0;
+                while(selection == 0){
+                    selection = Integer.valueOf(sc.nextLine());
+                    switch(selection){
+                        case 1:
+                            // Action
+                            break;
+                        case 2:
+                            // Action
+                            break;
+                        case 3:
+                            quitter = true;
+                            break;
+                        default:
+                            System.out.print("Saisie incorrecte, recommencez svp : ");
+                            selection = 0;
+                            break;
+                    }
+                }
+                break;
+            case RECHERCHE_PARTIE :
+                System.out.println("┌------------------------------------------------------------------------------------------------------┐");
+                System.out.println("│ 1:Créer une partie │ 2:Rejoindre une partie │ 3:Voir les parties │ 4:Mes scores │ 5:Se déconnecter │");
+                System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                System.out.print("Votre sélection : ");
+                selection = 0;
+                while(selection == 0){
+                    selection = Integer.valueOf(sc.nextLine());
+                    switch(selection){
+                        case 1:
+                            // Action
+                            break;
+                        case 2:
+                            // Action
+                            break;
+                        case 3:
+                            // Action
+                            break;
+                        case 4:
+                            // Action
+                            break;
+                        case 5:
+                            // Action
+                            break;
+                        default:
+                            System.out.print("Saisie incorrecte, recommencez svp : ");
+                            selection = 0;
+                            break;
+                    }
+                }
+                break;
+            case EN_PARTIE :
+                System.out.println("┌------------------------------------------------------------------------------------------------------┐");
+                System.out.println("│ 1:Lancer la partie │ 2:Quitter la partie │                                                          │");
+                System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                System.out.print("Votre sélection : ");
+                selection = 0;
+                while(selection == 0){
+                    selection = Integer.valueOf(sc.nextLine());
+                    switch(selection){
+                        case 1:
+                            // Action
+                            break;
+                        case 2:
+                            // Action
+                            break;
+                        default:
+                            System.out.print("Saisie incorrecte, recommencez svp : ");
+                            selection = 0;
+                            break;
+                    }
+                }
+                break;
+            case EN_JEU :
+                switch(this.etatJoueur){
+                    case JOUE :
+                        System.out.println("┌------------------------------------------------------------------------------------------------------┐");
+                        System.out.println("│ 1:Jouer │ 2:Voir les scores                                                                          │");
+                        System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                        System.out.print("Votre sélection : ");
+                        selection = 0;
+                        while(selection == 0){
+                            selection = Integer.valueOf(sc.nextLine());
+                            switch(selection){
+                                case 1:
+                                    // Action
+                                    break;
+                                case 2:
+                                    // Action
+                                    break;
+                                default:
+                                    System.out.print("Saisie incorrecte, recommencez svp : ");
+                                    selection = 0;
+                                    break;
+                            }
+                        }
+                        break;
+                    case JOUE_PAS :
+                        System.out.println("┌------------------------------------------------------------------------------------------------------┐");
+                        System.out.println("│ 1:Voir les scores │                                                                                  │");
+                        System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                        System.out.print("Votre sélection : ");
+                        selection = 0;
+                        while(selection == 0){
+                            selection = Integer.valueOf(sc.nextLine());
+                            switch(selection){
+                                case 1:
+                                    // Action
+                                    break;
+                                default:
+                                    System.out.print("Saisie incorrecte, recommencez svp : ");
+                                    selection = 0;
+                                    break;
+                            }
+                        }
+                        break;
+                }
+                break;
+        }
+        System.out.print("Votre sélection : ");
     }
 
     public void setPartie(Partie partie) {
