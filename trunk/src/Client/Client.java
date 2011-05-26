@@ -175,6 +175,10 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         serveurJeu.seDeconnecter(this);
     }
     
+    public void quitterPartie() throws RemoteException{
+        partie.dellClient(this);
+    }
+    
     public void lancerPartie() throws RemoteException {
         //serveurJeu.lancerPartie(this, partie);
         partie.lancerPartie(this);
@@ -333,12 +337,17 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                     selection = Integer.valueOf(sc.nextLine());
                     switch(selection){
                         case 1:
-                            // Action
+                            System.out.println("Login");
+                            login = sc.nextLine().replace("\n", "");
+                            System.out.println("Mot de passe : ");
+                            password = sc.nextLine().replace("\n", "");
+                            this.seConnecter();
                             break;
                         case 2:
-                            // Action
+                            this.seDeconnecter();
                             break;
                         case 3:
+                            this.seDeconnecter();
                             quitter = true;
                             break;
                         default:
@@ -358,19 +367,25 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                     selection = Integer.valueOf(sc.nextLine());
                     switch(selection){
                         case 1:
-                            // Action
+                            System.out.print("Nom partie : ");
+                            String nom = sc.nextLine().replace("\n", "");
+                            System.out.print("Nb Joueur");
+                            int nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
+                            this.creerPartie(nom, nb);
                             break;
                         case 2:
-                            // Action
+                            System.out.println("Num Partie");
+                            nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
+                            this.rejoindrepartie(nb);
                             break;
                         case 3:
-                            // Action
+                            System.out.println(this.getListePartie());
                             break;
                         case 4:
                             // Action
                             break;
                         case 5:
-                            // Action
+                            this.seDeconnecter();
                             break;
                         default:
                             System.out.print("Saisie incorrecte, recommencez svp : ");
@@ -389,10 +404,10 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                     selection = Integer.valueOf(sc.nextLine());
                     switch(selection){
                         case 1:
-                            // Action
+                            this.lancerPartie();
                             break;
                         case 2:
-                            // Action
+                            this.quitterPartie();
                             break;
                         default:
                             System.out.print("Saisie incorrecte, recommencez svp : ");
