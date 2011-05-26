@@ -328,9 +328,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
        Integer selection;
        switch(this.etatClient){
             case DECONNECTE :                
-                System.out.println("┌------------------------------------------------------------------------------------------------------┐");
-                System.out.println("│ 1:Se connecter | 2:Créer un compte | 3:Quitter                                                       │");
-                System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                System.out.println("┌----------------------------------------------------------------------------------------------------┐");
+                System.out.println("│ 1:Se connecter | 2:Créer un compte | 3:Quitter                                                     │");
+                System.out.println("└----------------------------------------------------------------------------------------------------┘");
                 System.out.print("Votre sélection : ");
                 selection = 0;
                 while(selection == 0){
@@ -358,9 +358,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                 }
                 break;
             case RECHERCHE_PARTIE :
-                System.out.println("┌------------------------------------------------------------------------------------------------------┐");
-                System.out.println("│ 1:Créer une partie │ 2:Rejoindre une partie │ 3:Voir les parties │ 4:Mes scores │ 5:Se déconnecter │");
-                System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                System.out.println("┌----------------------------------------------------------------------------------------------------┐");
+                System.out.println("│ 1:Créer une partie | 2:Rejoindre une partie | 3:Voir les parties | 4:Mes scores | 5:Se déconnecter │");
+                System.out.println("└----------------------------------------------------------------------------------------------------┘");
                 System.out.print("Votre sélection : ");
                 selection = 0;
                 while(selection == 0){
@@ -395,9 +395,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                 }
                 break;
             case EN_PARTIE :
-                System.out.println("┌------------------------------------------------------------------------------------------------------┐");
-                System.out.println("│ 1:Lancer la partie │ 2:Quitter la partie │                                                          │");
-                System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                System.out.println("┌----------------------------------------------------------------------------------------------------┐");
+                System.out.println("│ 1:Lancer la partie | 2:Quitter la partie |                                                         │");
+                System.out.println("└----------------------------------------------------------------------------------------------------┘");
                 System.out.print("Votre sélection : ");
                 selection = 0;
                 while(selection == 0){
@@ -419,9 +419,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
             case EN_JEU :
                 switch(this.etatJoueur){
                     case JOUE :
-                        System.out.println("┌------------------------------------------------------------------------------------------------------┐");
-                        System.out.println("│ 1:Jouer │ 2:Voir les scores                                                                          │");
-                        System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                        System.out.println("┌----------------------------------------------------------------------------------------------------┐");
+                        System.out.println("│ 1:Jouer | 2:Voir les scores                                                                        │");
+                        System.out.println("└----------------------------------------------------------------------------------------------------┘");
                         System.out.print("Votre sélection : ");
                         selection = 0;
                         while(selection == 0){
@@ -441,9 +441,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                         }
                         break;
                     case JOUE_PAS :
-                        System.out.println("┌------------------------------------------------------------------------------------------------------┐");
-                        System.out.println("│ 1:Voir les scores │                                                                                  │");
-                        System.out.println("└------------------------------------------------------------------------------------------------------┘");
+                        System.out.println("┌----------------------------------------------------------------------------------------------------┐");
+                        System.out.println("│ 1:Voir les scores                                                                                  │");
+                        System.out.println("└----------------------------------------------------------------------------------------------------┘");
                         System.out.print("Votre sélection : ");
                         selection = 0;
                         while(selection == 0){
