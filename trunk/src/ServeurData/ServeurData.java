@@ -38,7 +38,8 @@ public class ServeurData  extends UnicastRemoteObject{
     
     //ajouter user
     public void setUser(Client c) throws RemoteException{
-        
+         Client repSet = service.path("setUser").accept(MediaType.APPLICATION_XML).put(Client.class,c);         
+         
     }
     //recupérer si client si login et mdp bon sinon return null
     public Client getUser(String login,String password) throws RemoteException, JAXBException{
@@ -51,16 +52,17 @@ public class ServeurData  extends UnicastRemoteObject{
         return r.getValue();
     }
         
-    public ArrayList<Client> getListUser() throws RemoteException{
-        return new ArrayList<Client>();
+    public ArrayList<Client> getListUser() throws RemoteException, JAXBException{
+        String repList = service.path("List").accept(MediaType.APPLICATION_XML).get(String.class);
+        
+        JAXBContext mar = JAXBContext.newInstance(ArrayList.class);
+        javax.xml.bind.Unmarshaller un = mar.createUnmarshaller();
+        StringBuilder xmlstr = new StringBuilder(repList);
+        JAXBElement<ArrayList> r = (JAXBElement<ArrayList>) un.unmarshal(new StreamSource(new StringReader(xmlstr.toString())),ArrayList.class);
+        
+        return r.getValue();
     }
-            
-     public String Test() throws RemoteException{
-        //LIre liste fichier renvoyer le client correspondant au nom est password sinon null
-        return "helloTest";
-    }
-     
-
+ 
     public static URI getBaseURI(){
         return UriBuilder.fromUri("http://localhost:8080/testWS").build();
     }
