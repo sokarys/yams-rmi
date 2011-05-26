@@ -254,6 +254,7 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     public void selectionMenu() throws RemoteException {
        Scanner sc = new Scanner(System.in);
        Integer selection;
+       System.out.println("\n");
        switch(this.etatClient){
             case DECONNECTE :                
                 System.out.println("┌----------------------------------------------------------------------------------------------------┐");
@@ -265,7 +266,7 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                     selection = Integer.valueOf(sc.nextLine());
                     switch(selection){
                         case 1:
-                            System.out.println("Login");
+                            System.out.println("Votre Login : ");
                             login = sc.nextLine().replace("\n", "");
                             System.out.println("Mot de passe : ");
                             password = sc.nextLine().replace("\n", "");
@@ -295,14 +296,14 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                     selection = Integer.valueOf(sc.nextLine());
                     switch(selection){
                         case 1:
-                            System.out.print("Nom partie : ");
+                            System.out.print("Entrez un nom pour la partie : ");
                             String nom = sc.nextLine().replace("\n", "");
-                            System.out.print("Nb Joueur");
+                            System.out.print("Nombre de joueurs maximum : ");
                             int nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
                             this.creerPartie(nom, nb);
                             break;
                         case 2:
-                            System.out.println("Num Partie");
+                            System.out.println("Nom de la partie : ");
                             nb = Integer.valueOf(sc.nextLine().replace("\n", ""));
                             this.rejoindrepartie(nb);
                             break;
