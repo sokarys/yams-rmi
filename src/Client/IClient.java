@@ -31,4 +31,5 @@ public interface IClient extends Remote{
     public Client getClient() throws RemoteException;
     
     public int jouer() throws RemoteException;
+    public boolean estConnecter() throws RemoteException;
 }

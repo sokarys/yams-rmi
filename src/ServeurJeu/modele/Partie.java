@@ -26,14 +26,15 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "Partie")
 public class Partie extends UnicastRemoteObject implements IPartie,Serializable,Runnable{
-    private transient ArrayList<IClient> listeClient;
-    private transient HashMap<IClient,ScoreClient> listeScoreClient;
+    private ArrayList<IClient> listeClient;
+    private HashMap<IClient,ScoreClient> listeScoreClient;
     
     private int nombreJoueurMax;
     private String nomPartie;
-    private transient Thread thread;
-    private transient IClient admin = null;
-    private transient IServeurJeu serveurJeu;
+    private Thread thread;
+    private IClient admin = null;
+    private IServeurJeu serveurJeu;
+    private boolean nextPlayer;
     
     public Partie() throws RemoteException {
           
@@ -45,6 +46,7 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
         this.nombreJoueurMax = nombreJoueurMax;
         this.listeClient = new ArrayList<IClient>();
         this.listeScoreClient = new HashMap<IClient, ScoreClient>();
+	this.nextPlayer = false;
          try {
             serveurJeu = (IServeurJeu) Naming.lookup("rmi://127.0.0.1:2000/IServeurJeu");
         } catch (NotBoundException ex) {
@@ -72,18 +74,37 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
         }
     }
 
+	@Override
+    public void nextPlayer() throws RemoteException{
+	    nextPlayer = true;
+    }
+    
     @Override
     public synchronized void run() {
         System.out.println("lancer");
        for(int i=0; i<Regles.TYPESCORE.values().length; i++){
+	       System.out.println("tour : " + i);
            for(int j=0; j<listeClient.size(); j++){
+				try {
+					verifierJoueurDeco();
+				} catch (RemoteException ex) {
+					Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
+				}
                 try {
                     //serveurJeu.jouer(this, listeClient.get(j));
+			System.out.println("client : " + j);
+		    nextPlayer = false;
                     listeClient.get(j).jouer();
+		    while(!nextPlayer){
+			    verifierJoueurDeco();
+		    }
+		    
                 } catch (RemoteException ex) {
                     Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
                 }
+		   
            }
+	       
        }
         System.out.println("fin lancer");
         
@@ -93,15 +114,29 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
             Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    private void finPartie() throws RemoteException{
-        this.listeClient.clear();
-        this.listeScoreClient.clear();
+    private void verifierJoueurDeco() throws RemoteException{
+	    for(int i=0; i<this.listeClient.size(); i++){
+		    try{
+			    this.listeClient.get(i).estConnecter();
+		    }catch(Exception e){
+			    System.out.println("Partie : joueur deco");
+			    this.listeScoreClient.remove(this.listeClient.get(i));
+			    this.listeClient.remove(i);
+			    i--;
+		    }
+	    }
+	     if(	listeClient.isEmpty()){
+				    finPartie();
+	}
+    }
+    private void finPartie() throws RemoteException{   
         for(IClient c : listeClient){
             c.setEtatJoueur(Client.ETAT_JOUEUR.JOUE_PAS);
             c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
         }
-        this.serveurJeu.dellPartie(this);
+	this.listeClient.clear();
+        this.listeScoreClient.clear();
+        this.serveurJeu.dellPartie((IPartie)this);
     }
 
     @Override
@@ -126,6 +161,7 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
 
     @Override
     public void dellClient(IClient c) throws RemoteException {
+	verifierJoueurDeco();
         listeClient.remove(c);
         if(c.equals(admin) && !listeClient.isEmpty()){
             admin = listeClient.get(0).getClient();
@@ -148,7 +184,7 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
 
     @Override
     public boolean equals(Object obj) {
-        return this.nomPartie.equals(((Partie)obj).nomPartie);
+        return this.toString().equals(((Partie)obj).toString());
     }
 
     @Override
@@ -214,7 +250,20 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
     public void setThread(Thread thread) {
         this.thread = thread;
     }
-    
-    
+
+    @Override
+    public int getNbUserMax() throws RemoteException {
+        return this.getNombreJoueurMax();
+    }
+
+    @Override
+    public int getNbUser() throws RemoteException {
+        return this.listeClient.size();
+    }
+
+	@Override
+	public String getName() throws RemoteException {
+		return nomPartie;
+	}
     
 }

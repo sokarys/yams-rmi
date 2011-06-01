@@ -5,6 +5,7 @@
 package ServeurJeu;
 
 import Client.Client;
+import Client.Client.ETAT_CLIENT;
 import Client.IClient;
 import ServeurJeu.modele.IPartie;
 import ServeurJeu.modele.Main;
@@ -27,9 +28,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "ServeurJeu")
 public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runnable{
-    private transient final Thread thread;
-    private transient ArrayList<IClient> listeClient;
-    private transient ArrayList<IPartie> listPartie;
+    private  final Thread thread;
+    private  ArrayList<IClient> listeClient;
+    private  ArrayList<IPartie> listPartie;
 
     public ServeurJeu() throws RemoteException{
         thread = new Thread(this);
@@ -86,6 +87,7 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
         IPartie p = null;
         try {
             p = new Partie(nomPartie,nbJoueur);
+	    p.addClient(c);
             this.listPartie.add(p);
             for(IClient cl : listeClient){
                 cl.setListePartie(listPartie);
@@ -98,8 +100,10 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
     }
 
     @Override
-    public void rejoindrePartie(IPartie p, IClient c) throws RemoteException {
-        p.addClient(c);
+    public void rejoindrePartie(int numPartie, IClient c) throws RemoteException {
+        this.listPartie.get(numPartie).addClient(c);
+        c.setPartie(this.listPartie.get(numPartie));
+        c.setEtatClient(ETAT_CLIENT.EN_PARTIE);
     }
 
     @Override
@@ -129,6 +133,22 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
             System.out.println("Parties : " + listPartie.size());
             try {
                 thread.sleep(5000);
+		for(int i=0; i<listeClient.size(); i++){
+			try{
+				listeClient.get(i).estConnecter();
+			}catch(Exception e){
+				System.out.println("Serveur : joueur deco");
+				for(IPartie p : listPartie){
+					try {
+						p.dellClient(listeClient.get(i));
+					} catch (RemoteException ex) {
+						Logger.getLogger(ServeurJeu.class.getName()).log(Level.SEVERE, null, ex);
+					}
+				}
+				listeClient.remove(i);
+				i--;
+			}
+		}
             } catch (InterruptedException ex) {
                 Logger.getLogger(ServeurJeu.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -137,14 +157,19 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
 
     @Override
     public void dellPartie(IPartie p) throws RemoteException {
-        listPartie.remove(p);
+	for(int i=0; i<listPartie.size(); i++){
+		if(p.getName().equals(listPartie.get(i).getName())){
+			listPartie.remove(i);
+		}
+	}
     }
 
     @Override
-    public ArrayList<Partie> getListepartie() throws RemoteException {
-        ArrayList<Partie> l = new ArrayList<Partie>();
+    public ArrayList<String> getListepartie() throws RemoteException {
+        ArrayList<String> l = new ArrayList<String>();
+        int i = 0;
         for(IPartie p : listPartie){
-            l.add(p.partie());
+            l.add(i +  " : " + p.partie().getNomPartie() + " - " + p.getNbUser() + "/" + p.getNbUserMax());
         }
         return l;
     }

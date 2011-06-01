@@ -29,11 +29,11 @@ public interface IServeurJeu extends Remote{
     public void lancerPartie(IClient c, IPartie p) throws RemoteException;
     public void deconnecterPartie(IClient c, IPartie p) throws RemoteException;
     public IPartie creerPartie(IClient c, String nomPartie, int nbJoueur) throws RemoteException;
-    public void rejoindrePartie(IPartie p, IClient c) throws RemoteException;
+    public void rejoindrePartie(int numPartie, IClient c) throws RemoteException;
     public void dellPartie(IPartie p) throws RemoteException;
     public Main jouer(IPartie p, IClient c) throws RemoteException;
     
-    public ArrayList<Partie> getListepartie() throws RemoteException;
+    public ArrayList<String> getListepartie() throws RemoteException;
     
     
     //Client-Chat
