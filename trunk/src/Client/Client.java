@@ -8,6 +8,9 @@ import ServeurJeu.IServeurJeu;
 import ServeurJeu.ServeurJeu;
 import ServeurJeu.modele.IPartie;
 import ServeurJeu.modele.Partie;
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -30,25 +33,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Client")
 public class Client extends UnicastRemoteObject implements IClient,Serializable,Runnable{
-    
 
     public static enum ETAT_CLIENT {DECONNECTE,RECHERCHE_PARTIE, EN_PARTIE, EN_JEU};
     public static enum ETAT_JOUEUR {JOUE, JOUE_PAS}
     
     //@XmlElement()
-    private transient ETAT_CLIENT etatClient;
+    private ETAT_CLIENT etatClient;
     //@XmlElement()
-    private transient ETAT_JOUEUR etatJoueur;
+    private ETAT_JOUEUR etatJoueur;
     //@XmlElement()
     private String login;
     //@XmlElement()
     private String password;
-    private transient IPartie partie;
-    private transient IServeurJeu serveurJeu;
-    private transient Tchat tchat;
+    private IPartie partie;
+    private IServeurJeu serveurJeu;
+    private Tchat tchat;
     //@XmlElement()
-    private transient boolean quitter;
-    
+    private boolean quitter;
     
     public Client() throws RemoteException{       
         //this("","");
@@ -177,6 +178,8 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     
     public void quitterPartie() throws RemoteException{
         partie.dellClient(this);
+	this.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
+	this.setEtatJoueur(Client.ETAT_JOUEUR.JOUE_PAS);
     }
     
     public void lancerPartie() throws RemoteException {
@@ -197,24 +200,19 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     public void rejoindrepartie(int numPartie) throws RemoteException{
         
             if(numPartie < getListePartie().size()){
-                //this.serveurJeu.rejoindrePartie(this.listePartie.get(numPartie), this);
-                this.getListePartie().get(numPartie).addClient(this);
-                this.setPartie(this.getListePartie().get(numPartie));
-                this.etatClient = ETAT_CLIENT.EN_PARTIE;
+                this.serveurJeu.rejoindrePartie(numPartie, this);
             }
-        
     }
 
-    public ArrayList<Partie> getListePartie() throws RemoteException {
+    public ArrayList<String> getListePartie() throws RemoteException {
         return serveurJeu.getListepartie();
     }
     
     @Override
     public int jouer() throws RemoteException{
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Nb : ");
-        sc.nextLine();
-        System.out.println("Jouer");
+        this.setEtatClient(Client.ETAT_CLIENT.EN_JEU);
+        this.setEtatJoueur(Client.ETAT_JOUEUR.JOUE);
+	System.out.println("A vous de jouer");
         return 0;
     }
 
@@ -252,9 +250,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
    
      
     public void selectionMenu() throws RemoteException {
-       Scanner sc = new Scanner(System.in);
        Integer selection;
        System.out.println("\n");
+       Scanner sc = new Scanner(System.in);
        switch(this.etatClient){
             case DECONNECTE :                
                 System.out.println("┌----------------------------------------------------------------------------------------------------┐");
@@ -330,6 +328,7 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                 System.out.print("Votre sélection : ");
                 selection = 0;
                 while(selection == 0){
+                    try{
                     selection = Integer.valueOf(sc.nextLine());
                     switch(selection){
                         case 1:
@@ -343,6 +342,9 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                             selection = 0;
                             break;
                     }
+                    }catch(Exception e){
+                        System.out.println("Error EN PARITE");
+                    }
                 }
                 break;
             case EN_JEU :
@@ -354,18 +356,25 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                         System.out.print("Votre sélection : ");
                         selection = 0;
                         while(selection == 0){
+                            try{
                             selection = Integer.valueOf(sc.nextLine());
                             switch(selection){
                                 case 1:
-                                    // Action
-                                    break;
+					System.out.println("ttt");
+					//sc.nextLine();
+					partie.nextPlayer();
+					break;
                                 case 2:
-                                    // Action
+					System.out.println("score:");
+                                    partie.afficherScore();
                                     break;
                                 default:
                                     System.out.print("Saisie incorrecte, recommencez svp : ");
                                     selection = 0;
                                     break;
+                            }
+                            }catch(Exception e){
+                                System.out.println("Error JOU");
                             }
                         }
                         break;
@@ -406,5 +415,8 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         this.quitter = quitter;
     }
     
-    
+    @Override
+	public boolean estConnecter() throws RemoteException {
+		return true;
+	}
 }

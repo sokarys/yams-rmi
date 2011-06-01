@@ -18,5 +18,9 @@ public interface IPartie extends Remote{
     public void lancerPartie(IClient c) throws RemoteException;
     public void afficherScore() throws RemoteException;
     public Partie partie()throws RemoteException;
+    public int getNbUserMax() throws RemoteException;
+    public int getNbUser() throws RemoteException;
+    public void nextPlayer() throws RemoteException;
+    public String getName() throws RemoteException;
     
 }
