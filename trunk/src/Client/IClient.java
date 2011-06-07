@@ -6,6 +6,7 @@ package Client;
 
 import ServeurJeu.modele.IPartie;
 import ServeurJeu.modele.Partie;
+import ServeurJeu.modele.ScoreClient;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -31,5 +32,10 @@ public interface IClient extends Remote{
     public Client getClient() throws RemoteException;
     
     public int jouer() throws RemoteException;
+    public String getName() throws RemoteException;
+    public String getPassword() throws RemoteException;
+    public Historique getHistorique() throws RemoteException;
     public boolean estConnecter() throws RemoteException;
+    public void addScoreToHistorique(ScoreClient score) throws RemoteException;
+    public void setHistorique(Historique h) throws RemoteException;
 }

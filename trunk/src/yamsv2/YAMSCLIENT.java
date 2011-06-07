@@ -15,7 +15,7 @@ import java.rmi.RemoteException;
 public class YAMSCLIENT {
     public static void main(String[] args) throws RemoteException {
         Client c = new Client("","");
-        Thread t = new Thread(c);
-        t.start();
+        //Thread t = new Thread(c);
+        //t.start();
     }
 }

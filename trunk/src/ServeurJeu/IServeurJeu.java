@@ -32,7 +32,7 @@ public interface IServeurJeu extends Remote{
     public void rejoindrePartie(int numPartie, IClient c) throws RemoteException;
     public void dellPartie(IPartie p) throws RemoteException;
     public Main jouer(IPartie p, IClient c) throws RemoteException;
-    
+    public Main genererMain() throws RemoteException;
     public ArrayList<String> getListepartie() throws RemoteException;
     
     
@@ -40,8 +40,6 @@ public interface IServeurJeu extends Remote{
     public void envoyerMessage(IClient c, String message) throws RemoteException;
     public void envoyerMessage(IClient c,IPartie p, String message) throws RemoteException;
     
-    //Fonction pour jouer
-    public void envoyerMainPartie(Regles.TYPESCORE type, Main m,IPartie p, IClient c)  throws RemoteException;
     
     //public ServeurJeu getServeurJeu()
 

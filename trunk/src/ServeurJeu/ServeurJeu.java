@@ -6,7 +6,10 @@ package ServeurJeu;
 
 import Client.Client;
 import Client.Client.ETAT_CLIENT;
+import Client.ClientSave;
+import Client.Historique;
 import Client.IClient;
+import ServeurData.ServeurData;
 import ServeurJeu.modele.IPartie;
 import ServeurJeu.modele.Main;
 import ServeurJeu.modele.Partie;
@@ -20,6 +23,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -31,14 +35,17 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
     private  final Thread thread;
     private  ArrayList<IClient> listeClient;
     private  ArrayList<IPartie> listPartie;
+    private transient ServeurData serverData;
 
     public ServeurJeu() throws RemoteException{
         thread = new Thread(this);
+	serverData = new ServeurData();
     }
     
     public ServeurJeu(int port) throws RemoteException, AlreadyBoundException{
         super(port);
         initServeurJeu();
+	serverData = new ServeurData();
         thread = new Thread(this);
         thread.start();
     }
@@ -53,23 +60,38 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
 
     
     @Override
-    public void seConnecter(IClient c) throws RemoteException {
+    public synchronized void seConnecter(IClient c) throws RemoteException {
         //USE SERVER DATA
-        listeClient.add(c);
-        c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
-        c.setListePartie(listPartie);
+	ClientSave cs = null;
+	//System.out.println(serverData.getListUser_XML(ArrayList.class));
+	cs = serverData.getUser(ClientSave.class,c.getName(), c.getPassword());
+	System.out.println(cs);
+	if(!cs.getLogin().equals("")){
+		listeClient.add(c);
+		c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
+		c.setListePartie(listPartie);
+		c.setHistorique(cs.getHistorique());
+		c.setMessage(c, "Vous etes connecte");
+	}else{
+		c.setMessage(c, "Login introuvable");
+	}
     }
 
     @Override
-    public void seDeconnecter(IClient c) throws RemoteException {
+    public synchronized void seDeconnecter(IClient c) throws RemoteException {
         //if(!c.getClient().enPartie()){
             listeClient.remove(c);
+	    ClientSave cs = new ClientSave(c.getName(),c.getPassword(),c.getHistorique());
+	    serverData.setUser(cs);
+	    c.setEtatClient(Client.ETAT_CLIENT.DECONNECTE);
+	    c.setEtatJoueur(Client.ETAT_JOUEUR.JOUE_PAS);
         //}
     }
 
     @Override
     public void creerClient(String login, String password) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+            ClientSave cs = new ClientSave(login,password,new Historique());
+	    serverData.setUser(cs);
     }
 
     @Override
@@ -121,11 +143,6 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
     }
 
     @Override
-    public void envoyerMainPartie(TYPESCORE type, Main m, IPartie p, IClient c) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public void run() {
      System.out.println("Serveur Lancer");
         while(true){
@@ -174,11 +191,17 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
         return l;
     }
 
+    //DEPRECIE
     @Override
     public Main jouer(IPartie p, IClient c) throws RemoteException {
         c.setEtatJoueur(Client.ETAT_JOUEUR.JOUE);
         return null;
     }
+
+	@Override
+	public Main genererMain() throws RemoteException {
+		return new Main();
+	}
 
     
     

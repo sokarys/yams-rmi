@@ -4,6 +4,7 @@
  */
 package ServeurJeu.modele;
 
+import ServeurJeu.modele.Regles.TYPESCORE;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -30,4 +31,45 @@ public class ScoreClient implements Serializable{
         
         return false;
     }
+    
+    public int getScoreTotal(){
+	int total = 0;
+	for(int i=0; i<Regles.TYPESCORE.values().length; i++){
+		if(score.get(Regles.TYPESCORE.values()[i]) != -1){
+			total +=score.get(Regles.TYPESCORE.values()[i]);
+		}
+	}
+	return total;
+    }
+    
+    public int getScore(Regles.TYPESCORE type){
+	    if(this.score.get(type) != -1){
+		    return this.score.get(type);
+	    }
+	    return 0;
+    }
+
+	@Override
+	public String toString() {
+		String str = "";
+		for(int i=0; i<Regles.TYPESCORE.values().length; i++){
+			if(score.get(Regles.TYPESCORE.values()[i]) != -1){
+				str += i + " - " + Regles.TYPESCORE.values()[i] + " : " + score.get(Regles.TYPESCORE.values()[i]) + "\n";
+			}else{
+				str += i + " - " + Regles.TYPESCORE.values()[i] + " :\n";
+			}
+		}	
+		return str;
+	}
+
+	public void setScore(HashMap<TYPESCORE, Integer> score) {
+		this.score = score;
+	}
+
+	public HashMap<TYPESCORE, Integer> getScore() {
+		return score;
+	}
+    
+	
+    
 }
