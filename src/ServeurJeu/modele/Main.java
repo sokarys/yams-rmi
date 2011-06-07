@@ -17,27 +17,45 @@ import java.util.Map.Entry;
 public class Main implements Serializable{
     private HashMap<Integer,De> des;
     private ArrayList<Integer> listeDesARelancer;
+    private final int NB_RELANCE = 2;
+    private int nbRelance;
     
     public Main(){
+	nbRelance = 0;
         des = new HashMap<Integer,De>();
-        for(int i=0; i<5; i++){
+        for(int i=1; i<=5; i++){
             des.put(i, new De());
         }
         listeDesARelancer = new ArrayList<Integer>();
     }
 
+    //DEPRECIE
     public void MainCheat(int de, int face){
         des.get(de).setFace(face);
+    }
+    
+    public void dellDeARelancer(int de){
+	listeDesARelancer.remove(de);
     }
 
     public void clearListDeARelancer(){
         listeDesARelancer.clear();
     }
+
+	public ArrayList<Integer> getListeDesARelancer() {
+		return listeDesARelancer;
+	}
+
     public void relancerLesDes(){
-        for(Integer i : listeDesARelancer){
-            des.get(i).lancerLeDe();
-        }
-        listeDesARelancer.clear();
+	if(nbRelance<NB_RELANCE){
+		for(Integer i : listeDesARelancer){
+		    des.get(i).lancerLeDe();
+		}
+		listeDesARelancer.clear();
+		nbRelance++;
+	}else{
+		System.out.println("Nombre de relance maximum atteint");
+	}
     }
     public void choixDeARelancer(int index){
         listeDesARelancer.add(index);
@@ -47,21 +65,13 @@ public class Main implements Serializable{
         return des;
     }
     
-    public Integer getScrore(Regles.TYPESCORE type){
-        return 0;
-    }
-
     @Override
     public String toString(){
-        ArrayList<Integer> array = new ArrayList<Integer>();
-        for(Entry<Integer, De> currentEntry : des.entrySet()) {
-            array.add(currentEntry.getValue().getFace());
-        }
-        return array.toString();
+        return getAffichageMain();
     }
 
-    public void afficherMain(){
-        System.out.println("┌-------┐ ┌-------┐ ┌-------┐ ┌-------┐ ┌-------┐");
+    public String getAffichageMain(){
+        String ligne0 = ("┌-------┐ ┌-------┐ ┌-------┐ ┌-------┐ ┌-------┐");
         String ligne1 = "";
         String ligne2 = "";
         String ligne3 = "";
@@ -99,42 +109,64 @@ public class Main implements Serializable{
                     break;
             }
         }
-        System.out.println(ligne1);
-        System.out.println(ligne2);
-        System.out.println(ligne3);
-        System.out.println("└-------┘ └-------┘ └-------┘ └-------┘ └-------┘");
+        String ligne4 = ("└-------┘ └-------┘ └-------┘ └-------┘ └-------┘");
+	String ligne5 = ("    1         2         3         4         5");
+	return ligne0  + "\n"+ ligne1  + "\n"+ligne2 + "\n"+ligne3 + "\n"+ligne4 + "\n" + ligne5 +"\n";
     }
 
-    public Integer getScore(Main m,TYPESCORE type,int X){
+    public Integer getScore(TYPESCORE type,int sup, int inf){
         switch(type){
             case AS :
-                return Regles.pointNombreUnique(m,1);
+                return Regles.pointNombreUnique(this,1);
             case DEUX :
-                return Regles.pointNombreUnique(m,2);
+                return Regles.pointNombreUnique(this,2);
             case TROIS :
-                return Regles.pointNombreUnique(m,3);
+                return Regles.pointNombreUnique(this,3);
             case QUATRE :
-                return Regles.pointNombreUnique(m,4);
+                return Regles.pointNombreUnique(this,4);
             case CINQ :
-                return Regles.pointNombreUnique(m,5);
+                return Regles.pointNombreUnique(this,5);
             case SIX :
-                return Regles.pointNombreUnique(m,6);
+                return Regles.pointNombreUnique(this,6);
             case SUPERIEUR :
-                return Regles.pointSuperieur(m,X);
+                return Regles.pointSuperieur(this,inf);
             case INFERIEUR :
-                return Regles.pointInferieur(m,X);
+                return Regles.pointInferieur(this,sup);
             case CARRE :
-                return Regles.pointCarre(m);
+                return Regles.pointCarre(this);
             case FULL :
-                return Regles.pointFull(m);
+                return Regles.pointFull(this);
             case PETITE_SUITE :
-                return Regles.pointPetiteSuite(m);
+                return Regles.pointPetiteSuite(this);
             case GRANDE_SUITE :
-                return Regles.pointGrandeSuite(m);
+                return Regles.pointGrandeSuite(this);
             case YAMS :
-                return Regles.pointYams(m);
+                return Regles.pointYams(this);
             default:
                 return -1;
         }
     }
+
+	public int getNbRelance() {
+		return nbRelance;
+	}
+
+	public void setNbRelance(int nbRelance) {
+		this.nbRelance = nbRelance;
+	}
+
+	public void setDes(HashMap<Integer, De> des) {
+		this.des = des;
+	}
+
+	public void setListeDesARelancer(ArrayList<Integer> listeDesARelancer) {
+		this.listeDesARelancer = listeDesARelancer;
+	}
+
+	public int getNB_RELANCE() {
+		return NB_RELANCE;
+	}
+    
+	
+    
 }

@@ -14,7 +14,7 @@ import java.util.Map.Entry;
  *
  * @author root
  */
-public class Regles implements Serializable{
+public class Regles{
 
     public static enum TYPESCORE {AS,DEUX,TROIS,QUATRE,CINQ,SIX,SUPERIEUR,INFERIEUR,CARRE,FULL,PETITE_SUITE,GRANDE_SUITE,YAMS};
 
@@ -22,6 +22,7 @@ public class Regles implements Serializable{
     //* Partie supérieure de la feuille
     //***********************************
     public static Integer pointNombreUnique(Main main,Integer nombre){
+	System.out.println(main);
         HashMap<Integer,De> des = main.getDes();
         Integer nbElements = 0;
         for (Entry<Integer, De> currentEntry : des.entrySet()) {
@@ -30,6 +31,7 @@ public class Regles implements Serializable{
                 nbElements++;
             }
         }
+	System.out.println("RESULT : " + nbElements*nombre);
         return nbElements*nombre;
     }
 
@@ -199,6 +201,10 @@ public class Regles implements Serializable{
             }
         }
         return 0;
+    }
+    
+    public static Integer test(){
+	    return 100;
     }
 
     /* Au Yahtzee uniquement

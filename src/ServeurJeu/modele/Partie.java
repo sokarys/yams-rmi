@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -58,8 +59,17 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
         }
     }
     
-    public void addScore(IClient c,Regles.TYPESCORE type, Main m){
-        listeScoreClient.get(c).addScore(type, m.getScrore(type));
+	@Override
+    public boolean addScore(IClient c,Regles.TYPESCORE type, Main m) throws RemoteException{
+	System.out.println(m);
+	if(listeScoreClient.get(c).getScore(type)==-1){
+		int inf = listeScoreClient.get(c).getScore(Regles.TYPESCORE.INFERIEUR);
+		int sup = listeScoreClient.get(c).getScore(Regles.TYPESCORE.SUPERIEUR);
+		System.out.println(m.getScore(type,sup,inf));
+		listeScoreClient.get(c).addScore(type, m.getScore(type,sup,inf));
+		return true;
+	}
+	return false;
     }
     
     @Override
@@ -151,7 +161,9 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
                }
        //        System.out.println("Client " + c.getClient() + " a rejoint la partie " + this.nomPartie);
                if(listeClient.size() == nombreJoueurMax){
-                   System.out.println("Partie Remplie");
+		   for(IClient cc : listeClient){
+			cc.setMessage(cc, "Partie remplie");
+		   }
                }
            }
        /* } catch (RemoteException ex) {
@@ -187,9 +199,15 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
         return this.toString().equals(((Partie)obj).toString());
     }
 
-    @Override
     public void afficherScore() throws RemoteException {
-        
+        for(Entry<IClient, ScoreClient> entry : listeScoreClient.entrySet()) {
+	    IClient cle = entry.getKey();
+	    ScoreClient valeur = entry.getValue();
+	    // traitements
+	    System.out.println(cle.getName() + " : \n");
+	    System.out.println(valeur);
+		
+	}
     }
 
     @Override
@@ -264,6 +282,41 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
 	@Override
 	public String getName() throws RemoteException {
 		return nomPartie;
+	}
+
+	@Override
+	public String getAffichageScore() throws RemoteException {
+		String str = "";
+		for(Entry<IClient, ScoreClient> entry : listeScoreClient.entrySet()) {
+		    IClient cle = entry.getKey();
+		    ScoreClient valeur = entry.getValue();
+		    // traitements
+		    str += cle.getName() + " : \n";
+		    str += valeur;
+
+		}
+		return str;
+	}
+
+	@Override
+	public String getAffichageScoreClient(IClient c) throws RemoteException {
+		return this.listeScoreClient.get(c).toString();
+	}
+
+	public boolean isNextPlayer() {
+		return nextPlayer;
+	}
+
+	public void setNextPlayer(boolean nextPlayer) {
+		this.nextPlayer = nextPlayer;
+	}
+
+	public IServeurJeu getServeurJeu() {
+		return serveurJeu;
+	}
+
+	public void setServeurJeu(IServeurJeu serveurJeu) {
+		this.serveurJeu = serveurJeu;
 	}
     
 }
