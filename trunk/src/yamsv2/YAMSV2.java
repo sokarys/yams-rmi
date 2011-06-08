@@ -21,7 +21,7 @@ public class YAMSV2 {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
-        if(args.length == 1){
+        if(args.length > 0){
 		if(args[0].toUpperCase().equals("SERVEUR")){
 			 try {
 			    ServeurJeu j = new ServeurJeu(2000);
@@ -31,16 +31,12 @@ public class YAMSV2 {
 			    Logger.getLogger(YAMS.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}else if(args[0].toUpperCase().equals("CLIENT")){
-			Client c = new Client("","");
-			Thread t = new Thread(c);
-			t.start();
+			Client c = new Client("","",args[1]);
 		}else{
 			System.out.println("Erreur ARGUMENT");
 		}
 	}else{
-		Client c = new Client("","");
-		Thread t = new Thread(c);
-		t.start();
+		Client c = new Client("","","127.0.0.1");
 	}
     }
 }

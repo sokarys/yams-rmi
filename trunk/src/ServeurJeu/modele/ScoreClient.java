@@ -48,6 +48,11 @@ public class ScoreClient implements Serializable{
 	    }
 	    return 0;
     }
+    
+     public int getScoreRealValue(Regles.TYPESCORE type){
+	return this.score.get(type);
+    }
+    
 
 	@Override
 	public String toString() {
@@ -59,7 +64,7 @@ public class ScoreClient implements Serializable{
 				str += i + " - " + Regles.TYPESCORE.values()[i] + " :\n";
 			}
 		}	
-		return str;
+		return str +"\nScore Total : "+ this.getScoreTotal();
 	}
 
 	public void setScore(HashMap<TYPESCORE, Integer> score) {
@@ -69,6 +74,10 @@ public class ScoreClient implements Serializable{
 	public HashMap<TYPESCORE, Integer> getScore() {
 		return score;
 	}
+
+	public boolean isEmpty(Regles.TYPESCORE type){
+	    return this.score.get(type)==-1;
+    }
     
 	
     

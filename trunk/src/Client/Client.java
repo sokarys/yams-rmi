@@ -56,17 +56,19 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     private Historique historique;
     //@XmlElement()
     private boolean quitter;
+    private String ipServeur;
     
     public Client() throws RemoteException{       
          super();
         this.login = "";
         this.password = "";
+	this.ipServeur = "127.0.0.1";
         etatClient = ETAT_CLIENT.DECONNECTE;
         etatJoueur = ETAT_JOUEUR.JOUE_PAS;
         //listePartie = new ArrayList<IPartie>();
         partie = null;
-      //  tchat = new Tchat("Tchat " + login, this);
-        //tchat.setVisible(true);
+        tchat = new Tchat("Tchat " + login, this);
+        tchat.setVisible(true);
         try {
             serveurJeu = (IServeurJeu) Naming.lookup("rmi://127.0.0.1:2000/IServeurJeu");
 	    historique = new Historique();
@@ -79,18 +81,19 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         }
     }
     
-    public Client(String login, String password) throws RemoteException{
+    public Client(String login, String password,String ipServeur) throws RemoteException{
         super();
+	this.ipServeur = ipServeur;
         this.login = login;
         this.password = password;
         etatClient = ETAT_CLIENT.DECONNECTE;
         etatJoueur = ETAT_JOUEUR.JOUE_PAS;
         //listePartie = new ArrayList<IPartie>();
         partie = null;
-      //  tchat = new Tchat("Tchat " + login, this);
-        //tchat.setVisible(true);
+        tchat = new Tchat("Tchat " + login, this);
+        tchat.setVisible(true);
         try {
-            serveurJeu = (IServeurJeu) Naming.lookup("rmi://127.0.0.1:2000/IServeurJeu");
+            serveurJeu = (IServeurJeu) Naming.lookup("rmi://"+ipServeur+":2000/IServeurJeu");
 	    historique = new Historique();
         } catch (NotBoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -101,22 +104,11 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         }
 	tread.start();
     }
-    
+   
     @Override
-    public void setListePartie(ArrayList<IPartie> listeP) throws RemoteException {
-        //listePartie = listeP;
-        System.out.println("mISE AJOUR LISTE PARTIE");
-    }
-
-    @Override
-    public void setMessage(IClient c, String message) throws RemoteException {
-       // tchat.addMesage(c, message);
-        System.out.println(message);
-    }
-
-    @Override
-    public void setMessage(IClient c, String message, IPartie p) throws RemoteException {
-        tchat.addMesage(c, message);
+    public void setMessage(String message) throws RemoteException {
+        tchat.addMesage(message);
+        //System.out.println(message);
     }
 
     @Override
@@ -139,7 +131,8 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         return ((Client) this);
     }
     
-    public void envoieMessage(String message){
+    @Override
+    public void envoieMessage(String message) throws RemoteException{
         try {
                 serveurJeu.envoyerMessage(this,message);
             } catch (RemoteException ex) {
@@ -147,17 +140,6 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
             }
     }
     
-    public void envoieMessagePartie(String message){
-        if(this.partie != null){
-            try {
-                serveurJeu.envoyerMessage(this,this.partie,message);
-            } catch (RemoteException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-   
-
     @Override
     public String toString() {
         return getLogin();
@@ -191,7 +173,8 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
         return etatJoueur;
     }
     
-    public boolean enPartie(){
+    @Override
+    public boolean enPartie() throws RemoteException{
         return getEtatClient() == Client.ETAT_CLIENT.EN_PARTIE || getEtatClient() == Client.ETAT_CLIENT.EN_JEU;
     }
     
@@ -239,7 +222,6 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     public int jouer() throws RemoteException{
         this.setEtatClient(Client.ETAT_CLIENT.EN_JEU);
         this.setEtatJoueur(Client.ETAT_JOUEUR.JOUE);
-	System.out.println("A TOI de jouer (YU-GI-HOOOOO");
         return 0;
     }
 
@@ -269,6 +251,8 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
 			    de = sc.nextInt();
 			    if(partie.addScore(this, TYPESCORE.values()[de], m)){
 				    encours = false;
+				    partie.nextPlayer();
+				    this.setEtatJoueur(ETAT_JOUEUR.JOUE_PAS);
 			    }else{
 				    System.out.println("Un score existe deja, choisissez autre chose.");
 			    }
@@ -306,13 +290,17 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
     public void run() {
        while (!quitter) {
             try {
-		if(!quitter){
-			selectionMenu();
-		}
-            } catch (RemoteException ex) {
+			if(!quitter){
+				selectionMenu();
+				tread.sleep(500);
+			}
+		}catch (InterruptedException ex) {
+				Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (RemoteException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+       System.exit(0);
     }
    
      
@@ -346,7 +334,6 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
 			    this.seConnecter();
                             break;
                         case 3:
-                            this.seDeconnecter();
                             quitter = true;
                             break;
                         default:
@@ -381,7 +368,7 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                             System.out.println(this.getListePartie());
                             break;
                         case 4:
-                            // Action
+                            System.out.println(this.getHistorique());
                             break;
                         case 5:
                             this.seDeconnecter();
@@ -432,12 +419,11 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                             selection = Integer.valueOf(sc.nextLine());
                             switch(selection){
                                 case 1:
-					System.out.println("ttt");
-					this.jeJoue(sc);
-					partie.nextPlayer();
+					if(this.getEtatJoueur() == ETAT_JOUEUR.JOUE){
+						this.jeJoue(sc);
+					}
 					break;
                                 case 2:
-					System.out.println("score: ");
 					System.out.println(partie.getAffichageScore());
                                     break;
                                 default:
@@ -460,7 +446,7 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
                             selection = Integer.valueOf(sc.nextLine());
                             switch(selection){
                                 case 1:
-                                    // Action
+                                    System.out.println(partie.getAffichageScore());
                                     break;
                                 default:
                                     System.out.print("Saisie incorrecte, recommencez svp : ");
@@ -500,6 +486,7 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
 	@Override
 	public void addScoreToHistorique(ScoreClient score) throws RemoteException{
 		this.historique.addHistorique(score);
+		serveurJeu.sauvegarderClient(this);
 	}
 	
 	@Override
@@ -509,5 +496,10 @@ public class Client extends UnicastRemoteObject implements IClient,Serializable,
 	@Override
 	public Historique getHistorique() throws RemoteException {
 		return this.historique;
+	}
+	
+	@Override
+	public IPartie getPartie() throws RemoteException{
+		return this.partie;
 	}
 }

@@ -17,11 +17,11 @@ import java.util.ArrayList;
  */
 public interface IClient extends Remote{
     //mise a jour liste partie via le serveur
-    public void setListePartie(ArrayList<IPartie> listeP) throws RemoteException;
     public void setPartie(IPartie p) throws RemoteException;
+    public IPartie getPartie() throws RemoteException;
     //Message Reçus via le serveur
-    public void setMessage(IClient c, String message ) throws RemoteException;
-    public void setMessage(IClient c, String message,IPartie p) throws RemoteException;
+    public void setMessage(String message ) throws RemoteException;
+    public void envoieMessage(String message) throws RemoteException;
     
     //savoir si le client recherche une partie, est dans un salon, ou en partie
     public void setEtatClient(Client.ETAT_CLIENT etat) throws RemoteException;
@@ -30,6 +30,7 @@ public interface IClient extends Remote{
 
     //general
     public Client getClient() throws RemoteException;
+    public boolean enPartie() throws RemoteException;
     
     public int jouer() throws RemoteException;
     public String getName() throws RemoteException;

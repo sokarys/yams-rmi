@@ -26,6 +26,11 @@ public class De implements Serializable{
         lancerLeDe();
     }
 
+	public De(Integer face) {
+		this.face = face;
+	}
+
+    
     public void setFace(Integer face){
         this.face = face;
     }

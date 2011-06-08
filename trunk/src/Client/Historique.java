@@ -8,6 +8,7 @@ import ServeurJeu.modele.ScoreClient;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -35,7 +36,14 @@ public class Historique implements Serializable{
 
 	@Override
 	public String toString() {
-		return histoScore.toString();
+		String str = "";
+		for(Entry<Date, ScoreClient> entry : histoScore.entrySet()) {
+			Date cle = entry.getKey();
+			ScoreClient valeur = entry.getValue();
+			
+			str += "\n" + cle + "\n" + valeur;
+		}
+		return str;
 	}
 	
 }

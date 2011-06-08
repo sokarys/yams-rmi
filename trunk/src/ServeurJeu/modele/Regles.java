@@ -21,17 +21,16 @@ public class Regles{
     //***********************************
     //* Partie supérieure de la feuille
     //***********************************
-    public static Integer pointNombreUnique(Main main,Integer nombre){
+    public static int pointNombreUnique(Main main,int nombre){
 	System.out.println(main);
         HashMap<Integer,De> des = main.getDes();
-        Integer nbElements = 0;
+        int nbElements = 0;
         for (Entry<Integer, De> currentEntry : des.entrySet()) {
             De de = currentEntry.getValue();
             if(de.getFace() == nombre){
                 nbElements++;
             }
         }
-	System.out.println("RESULT : " + nbElements*nombre);
         return nbElements*nombre;
     }
 
@@ -39,9 +38,9 @@ public class Regles{
     //* Partie centrale de la feuille
     //***********************************
 
-    public static Integer pointSuperieur(Main main, Integer pointsInferieur){
+    public static int pointSuperieur(Main main, int pointsInferieur){
         HashMap<Integer,De> des = main.getDes();
-        Integer somme = 0;
+        int somme = 0;
         for(Entry<Integer, De> currentEntry : des.entrySet()) {
             De de = currentEntry.getValue();
             somme += de.getFace();
@@ -58,9 +57,9 @@ public class Regles{
         }
     }
 
-    public static Integer pointInferieur(Main main, Integer pointsSuperieur){
+    public static int pointInferieur(Main main, int pointsSuperieur){
         HashMap<Integer,De> des = main.getDes();
-        Integer somme = 0;
+        int somme = 0;
         for(Entry<Integer, De> currentEntry : des.entrySet()) {
             De de = currentEntry.getValue();
             somme += de.getFace();
@@ -81,10 +80,10 @@ public class Regles{
     //* Partie inférieure de la feuille
     //***********************************
 
-    public static Integer pointCarre(Main main){
+    public static int pointCarre(Main main){
         HashMap<Integer,De> des = main.getDes();
         HashMap<Integer,Integer> occurences = new HashMap<Integer, Integer>();
-        Integer somme = 0;
+        int somme = 0;
         //Intitialisation
         for(int i=1; i<=6;i++){
             occurences.put(i, 0);
@@ -105,10 +104,10 @@ public class Regles{
         return 0;
     }
 
-    public static Integer pointFull(Main main){
+    public static int pointFull(Main main){
         HashMap<Integer,De> des = main.getDes();
         HashMap<Integer,Integer> occurences = new HashMap<Integer, Integer>();
-        Integer somme = 0;
+        int somme = 0;
         Boolean DeuxIdentiques = false;
         Boolean TroisIdentiques = false;
         //Intitialisation
@@ -137,7 +136,7 @@ public class Regles{
         }
     }
 
-    public static Integer pointPetiteSuite(Main main){
+    public static int pointPetiteSuite(Main main){
         HashMap<Integer,De> des = main.getDes();
         ArrayList<Integer> arrayDes = new ArrayList<Integer>();
         for(Entry<Integer, De> currentEntry : des.entrySet()) {
@@ -158,7 +157,7 @@ public class Regles{
         return 0;
     }
 
-    public static Integer pointGrandeSuite(Main main){
+    public static int pointGrandeSuite(Main main){
         HashMap<Integer,De> des = main.getDes();
         ArrayList<Integer> arrayDes = new ArrayList<Integer>();
         for(Entry<Integer, De> currentEntry : des.entrySet()) {
@@ -179,10 +178,10 @@ public class Regles{
         return 0;
     }
 
-    public static Integer pointYams(Main main){
+    public static int pointYams(Main main){
         HashMap<Integer,De> des = main.getDes();
         HashMap<Integer,Integer> occurences = new HashMap<Integer, Integer>();
-        Integer somme = 0;
+        int somme = 0;
         //Intitialisation
         for(int i=1; i<=6;i++){
             occurences.put(i, 0);

@@ -69,11 +69,16 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
 	if(!cs.getLogin().equals("")){
 		listeClient.add(c);
 		c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
-		c.setListePartie(listPartie);
 		c.setHistorique(cs.getHistorique());
-		c.setMessage(c, "Vous etes connecte");
+		c.setMessage("<span style='color:blue;'>Systeme : Vous etes connecte</span>");
+		for(IClient cl : listeClient){
+			if(!cl.equals(c)){
+				cl.setMessage("<span style='color:blue;'>Systeme : " + c.getName() + " s'est connecte.</span>");
+			}
+		}
+		
 	}else{
-		c.setMessage(c, "Login introuvable");
+		c.setMessage("<span style='color:blue;'>Systeme : Login introuvable</span>");
 	}
     }
 
@@ -112,7 +117,7 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
 	    p.addClient(c);
             this.listPartie.add(p);
             for(IClient cl : listeClient){
-                cl.setListePartie(listPartie);
+                cl.setMessage("<span style='color:blue;'>Systeme : une nouvelle partie a ete cree : " + nomPartie + " 1/" + nbJoueur + "</span>");
             }
         } catch (MalformedURLException ex) {
             Logger.getLogger(ServeurJeu.class.getName()).log(Level.SEVERE, null, ex);
@@ -129,17 +134,21 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
     }
 
     @Override
-    public void envoyerMessage(IClient c, String message) throws RemoteException {
-        for(IClient cl : listeClient){
-            cl.setMessage(c, message);
-        }
-    }
-
-    @Override
-    public void envoyerMessage(IClient c, IPartie p, String message) throws RemoteException {
-        for(IClient cl : listeClient){
-            cl.setMessage(c, message, p);
-        }
+    public void envoyerMessage(IClient c,String message) throws RemoteException {
+	if(message.startsWith("/p") && c.enPartie()){
+		for(IClient cl : c.getPartie().getListClient()){
+		    cl.setMessage("<span style='color:#339900;'>[Partie] " + message + "</span>");
+		}
+	}else if(!message.contains("Systeme : ")){
+		for(IClient cl : listeClient){
+		    cl.setMessage("<span style='color:#FF9933;'>" + message + "</span>");
+		}
+	}else{
+		for(IClient cl : listeClient){
+		    cl.setMessage(message);
+		}
+	}
+        
     }
 
     @Override
@@ -201,6 +210,12 @@ public class ServeurJeu extends UnicastRemoteObject implements IServeurJeu,Runna
 	@Override
 	public Main genererMain() throws RemoteException {
 		return new Main();
+	}
+	
+	@Override
+	public void sauvegarderClient(IClient c) throws RemoteException{
+		ClientSave cs = new ClientSave(c.getName(),c.getPassword(),c.getHistorique());
+		serverData.setUser(cs);
 	}
 
     

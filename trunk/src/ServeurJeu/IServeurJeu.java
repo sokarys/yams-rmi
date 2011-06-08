@@ -34,13 +34,10 @@ public interface IServeurJeu extends Remote{
     public Main jouer(IPartie p, IClient c) throws RemoteException;
     public Main genererMain() throws RemoteException;
     public ArrayList<String> getListepartie() throws RemoteException;
+    public void sauvegarderClient(IClient c) throws RemoteException;
     
     
     //Client-Chat
-    public void envoyerMessage(IClient c, String message) throws RemoteException;
-    public void envoyerMessage(IClient c,IPartie p, String message) throws RemoteException;
+    public void envoyerMessage(IClient c,String message) throws RemoteException;
     
-    
-    //public ServeurJeu getServeurJeu()
-
 }
