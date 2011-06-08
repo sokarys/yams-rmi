@@ -5,6 +5,8 @@
 package ServeurJeu.modele;
 
 import Client.Client;
+import Client.Client.ETAT_CLIENT;
+import Client.Client.ETAT_JOUEUR;
 import Client.IClient;
 import ServeurJeu.IServeurJeu;
 import ServeurJeu.ServeurJeu;
@@ -59,28 +61,29 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
         }
     }
     
-	@Override
+    @Override
     public boolean addScore(IClient c,Regles.TYPESCORE type, Main m) throws RemoteException{
-	System.out.println(m);
-	if(listeScoreClient.get(c).getScore(type)==-1){
-		int inf = listeScoreClient.get(c).getScore(Regles.TYPESCORE.INFERIEUR);
-		int sup = listeScoreClient.get(c).getScore(Regles.TYPESCORE.SUPERIEUR);
+	if(listeScoreClient.get(c).isEmpty(type)){
+		int inf = listeScoreClient.get(c).getScoreRealValue(Regles.TYPESCORE.INFERIEUR);
+		int sup = listeScoreClient.get(c).getScoreRealValue(Regles.TYPESCORE.SUPERIEUR);
 		System.out.println(m.getScore(type,sup,inf));
 		listeScoreClient.get(c).addScore(type, m.getScore(type,sup,inf));
 		return true;
+	}else{
+		return false;
 	}
-	return false;
     }
     
     @Override
     public void lancerPartie(IClient c) throws RemoteException{
-        System.out.println(c + "   " + admin);
         if(c.equals(admin)){
-            thread = new Thread(this);
-            thread.start();
             for(IClient cc : listeClient){
-                cc.setMessage(c, "PartieLancer");
+                cc.setMessage("<span style='color:blue;'>Systeme : Partie Lancer</span>");
+		cc.setEtatClient(ETAT_CLIENT.EN_JEU);
+		cc.setEtatJoueur(ETAT_JOUEUR.JOUE_PAS);
             }
+	    thread = new Thread(this);
+            thread.start();
         }
     }
 
@@ -104,8 +107,14 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
                     //serveurJeu.jouer(this, listeClient.get(j));
 			System.out.println("client : " + j);
 		    nextPlayer = false;
+		    listeClient.get(j).setMessage("<span style='color:blue;'>Systeme : A vous de jouer</span>");
                     listeClient.get(j).jouer();
 		    while(!nextPlayer){
+						try {
+							thread.sleep(3000);
+						} catch (InterruptedException ex) {
+							Logger.getLogger(Partie.class.getName()).log(Level.SEVERE, null, ex);
+						}
 			    verifierJoueurDeco();
 		    }
 		    
@@ -130,6 +139,9 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
 			    this.listeClient.get(i).estConnecter();
 		    }catch(Exception e){
 			    System.out.println("Partie : joueur deco");
+			    for(IClient cc : listeClient){
+				cc.setMessage("<span style='color:blue;'>Systeme : " + this.listeClient.get(i).getName() + " a ete déconnecte</span>");
+			    }
 			    this.listeScoreClient.remove(this.listeClient.get(i));
 			    this.listeClient.remove(i);
 			    i--;
@@ -139,11 +151,22 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
 				    finPartie();
 	}
     }
-    private void finPartie() throws RemoteException{   
+    private void finPartie() throws RemoteException{
+	String nameWinner = "";
+	int scoreWinner = 0;
         for(IClient c : listeClient){
-            c.setEtatJoueur(Client.ETAT_JOUEUR.JOUE_PAS);
-            c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
+		if(scoreWinner < this.listeScoreClient.get(c).getScoreTotal()){
+			scoreWinner = this.listeScoreClient.get(c).getScoreTotal();
+			nameWinner = c.getName();
+		}
         }
+	for(IClient c : listeClient){
+	    c.setMessage("<span style='color:blue;'>Systeme : Le gagnant est <strong>"+ nameWinner + "</strong> avec un score de <strong>"+ scoreWinner +"</strong> points!</span>");
+	    c.setMessage("<span style='color:blue;'>Systeme : Partie Finie</span>");
+	    c.setEtatJoueur(Client.ETAT_JOUEUR.JOUE_PAS);
+            c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
+	    c.addScoreToHistorique(this.listeScoreClient.get(c));
+	}
 	this.listeClient.clear();
         this.listeScoreClient.clear();
         this.serveurJeu.dellPartie((IPartie)this);
@@ -154,15 +177,19 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
      //   try {
 //            System.out.println("Client " + c.getClient() + " a rejoint la partie " + this.nomPartie);
            if(!listeClient.contains(c) && listeClient.size() < nombreJoueurMax){
+               for(IClient cc : listeClient){
+		cc.setMessage("<span style='color:blue;'>Systeme : " +c.getName() + " a rejoint la partie</span>");
+               }
                listeClient.add(c);
                listeScoreClient.put(c,new ScoreClient());
+		c.setMessage("<span style='color:blue;'>Systeme : Vous etes connecter a la partie.</span>");
                if(listeClient.size() == 1){
                    admin = c;
                }
        //        System.out.println("Client " + c.getClient() + " a rejoint la partie " + this.nomPartie);
                if(listeClient.size() == nombreJoueurMax){
 		   for(IClient cc : listeClient){
-			cc.setMessage(cc, "Partie remplie");
+			cc.setMessage("<span style='color:blue;'>Systeme : Partie remplie</span>");
 		   }
                }
            }
@@ -175,12 +202,15 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
     public void dellClient(IClient c) throws RemoteException {
 	verifierJoueurDeco();
         listeClient.remove(c);
+	for(IClient cc : listeClient){
+		cc.setMessage("<span style='color:blue;'>Systeme : " + c.getName() + " a quitte la partie</span>");
+        }
         if(c.equals(admin) && !listeClient.isEmpty()){
             admin = listeClient.get(0).getClient();
             c.setEtatJoueur(Client.ETAT_JOUEUR.JOUE_PAS);
             c.setEtatClient(Client.ETAT_CLIENT.RECHERCHE_PARTIE);
             listeScoreClient.remove(c);
-            admin.setMessage(admin, "Vous etes le nouvel admin.", this);
+            admin.setMessage("<span style='color:blue;'>Systeme : Vous etes le nouvel admin.</span>");
         }
         if(listeClient.isEmpty()){
             this.serveurJeu.dellPartie(this);
@@ -317,6 +347,11 @@ public class Partie extends UnicastRemoteObject implements IPartie,Serializable,
 
 	public void setServeurJeu(IServeurJeu serveurJeu) {
 		this.serveurJeu = serveurJeu;
+	}
+
+	@Override
+	public ArrayList<IClient> getListClient() throws RemoteException {
+		return listeClient;
 	}
     
 }

@@ -40,7 +40,7 @@ public class Interface implements Runnable {
 
         String mdp = sc.nextLine().replace("\n", "");
 
-        this.client = new Client(name, mdp);
+        this.client = new Client(name, mdp,"localhost");
     }
 
     private void afficherMenu() {
